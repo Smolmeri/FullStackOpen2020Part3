@@ -1,29 +1,13 @@
-require("dotenv").config();
 const express = require("express");
+const app = express();
+require("dotenv").config();
 const morgan = require("morgan");
 const cors = require("cors");
 const Person = require("./models/person");
-const app = express();
 
 app.use(cors());
 app.use(express.static("build"));
 app.use(express.json());
-
-const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: "unknown endpoint" });
-};
-
-app.use(unknownEndpoint);
-
-const errorHandler = (error, req, res, next) => {
-  console.log(error.message);
-
-  if (error.name === "CastError") {
-    return res.status(400).semd({ error: "malformed id" });
-  }
-  next(error);
-};
-app.use(errorHandler);
 
 morgan.token("body", function (req, res) {
   return JSON.stringify(req.body);
@@ -92,6 +76,26 @@ app.post("/api/persons", (req, res) => {
     res.json(savedPerson);
   });
 });
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError" && error.kind == "ObjectId") {
+    return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
