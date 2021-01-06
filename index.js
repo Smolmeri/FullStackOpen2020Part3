@@ -1,13 +1,14 @@
-const express = require("express");
-const app = express();
 require("dotenv").config();
+const express = require("express");
+const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cors = require("cors");
 const Person = require("./models/person");
 
+const app = express();
 app.use(cors());
 app.use(express.static("build"));
-app.use(express.json());
+app.use(bodyParser.json());
 
 morgan.token("body", function (req, res) {
   return JSON.stringify(req.body);
@@ -25,8 +26,12 @@ app.get("/", (req, res) => {
 });
 
 app.get("/info", (req, res) => {
-  res.send(`<p>Phonebook for people</p>
-    <p>${currentDateandTime}</p>`);
+  const currentDateandTime = new Date();
+  Person.find({}).then((persons) => {
+    res.send(
+      `<h2>Phonebook has info for ${persons.length} people.</h2><h2>${currentDateandTime}</h2>`
+    );
+  });
 });
 
 // All data
@@ -41,7 +46,7 @@ app.get("/api/persons/:id", (req, res, next) => {
   Person.findById(req.params.id)
     .then((person) => {
       if (person) {
-        res.json(person);
+        res.json(person.toJSON());
       } else {
         res.status(404).end();
       }
@@ -75,6 +80,21 @@ app.post("/api/persons", (req, res) => {
   person.save().then((savedPerson) => {
     res.json(savedPerson);
   });
+});
+
+app.put("/api/persons/:id", (req, res, next) => {
+  const body = req.body;
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      res.json(updatedPerson.toJSON());
+    })
+    .catch((error) => next(error));
 });
 
 const unknownEndpoint = (request, response) => {
