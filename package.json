@@ -10,7 +10,8 @@
     "build:ui": "rm -rf build && cd ../FullStack2020-TomPaavolainen/Part2/phonebook && npm run build --prod && cp -r build ../../../FullStackPart3/",
     "deploy": "git push heroku HEAD:main",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
-    "logs:prod": "heroku logs --tail"
+    "logs:prod": "heroku logs --tail",
+    "lint": "eslint ."
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -21,6 +22,7 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "eslint": "^7.17.0",
     "nodemon": "^2.0.2"
   },
   "author": "Tuomas Paavolainen",
