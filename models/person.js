@@ -44,7 +44,7 @@ personSchema.set("toJSON", {
 });
 
 personSchema.plugin(uniqueValidator, {
-  message: `Error, expected ${PATH} to be unique`,
+  message: `Error, expected name to be unique`,
 });
 
 module.exports = mongoose.model("Person", personSchema);
