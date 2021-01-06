@@ -1,4 +1,7 @@
 const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
+mongoose.set("useFindAndModify", false);
+mongoose.set("useCreateIndex", true);
 
 const url = process.env.MONGODB_URI;
 
@@ -23,10 +26,12 @@ const personSchema = new mongoose.Schema({
     type: String,
     minlength: 3,
     required: true,
+    unique: true,
   },
   number: {
     type: String,
     required: true,
+    minlength: 8,
   },
 });
 
@@ -36,6 +41,10 @@ personSchema.set("toJSON", {
     delete returnedObject._id;
     delete returnedObject.__v;
   },
+});
+
+personSchema.plugin(uniqueValidator, {
+  message: `Error, expected ${PATH} to be unique`,
 });
 
 module.exports = mongoose.model("Person", personSchema);
