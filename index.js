@@ -35,7 +35,7 @@ app.get("/info", (req, res) => {
 });
 
 // All data
-app.get("/api/persons", (req, res) => {
+app.get("/api/persons", (req, res, next) => {
   Person.find({})
     .then((persons) => {
       res.json(persons);
